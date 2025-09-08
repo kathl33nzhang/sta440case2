@@ -16,7 +16,8 @@ data <- data |>
          glutamate = if_else(str_detect(Substrate,"G"),1,0),
          pyruvate = if_else(str_detect(Substrate,"P"),1,0),
          palmytol = if_else(str_detect(Substrate,"Pc"),1,0),
-         octanoyl = if_else(str_detect(Substrate,"Oc"),1,0))
+         octanoyl = if_else(str_detect(Substrate,"Oc"),1,0),
+         pair = substr(Subject,3,3))
 
 ## Basic graph
 data |> 
@@ -25,4 +26,17 @@ data |>
   geom_smooth(method = "lm") + 
   facet_wrap(.~Substrate)
 
+## Facet by pair
+data |> 
+  ggplot(aes(x = Dose, y = VO2, color = as.factor(natural))) +
+  geom_point() +
+  geom_smooth(method = "lm") + 
+  facet_wrap(.~pair)
+
+
+## Comparing substrate indicators vs. individual effects for each
 summary(lm(VO2 ~ Dose + natural + glutamate + pyruvate + palmytol + octanoyl, data = data))
+summary(lm(VO2 ~ natural + Dose + Substrate, data = data))
+## And an interaction model
+summary(lm(VO2 ~ natural + Dose * Substrate, data = data))
+

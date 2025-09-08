@@ -27,11 +27,14 @@ data |>
   facet_wrap(.~Substrate)
 
 ## Facet by pair
-data |> 
-  ggplot(aes(x = Dose, y = VO2, color = as.factor(natural))) +
-  geom_point() +
-  geom_smooth(method = "lm") + 
-  facet_wrap(.~pair)
+for (i in unique(data$pair)){
+  data |> 
+    filter(pair == i) |> 
+    ggplot(aes(x = Dose, y = VO2, color = as.factor(natural))) +
+    geom_point() +
+    geom_smooth(method = "lm") + 
+    facet_wrap(.~Substrate)
+  }
 
 
 ## Comparing substrate indicators vs. individual effects for each

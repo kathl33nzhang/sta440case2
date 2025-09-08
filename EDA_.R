@@ -28,12 +28,14 @@ data |>
 
 ## Facet by pair
 for (i in unique(data$pair)){
-  data |> 
+  p <- data |> 
     filter(pair == i) |> 
     ggplot(aes(x = Dose, y = VO2, color = as.factor(natural))) +
     geom_point() +
     geom_smooth(method = "lm") + 
-    facet_wrap(.~Substrate)
+    facet_wrap(.~Substrate) +
+    labs(title = paste0("VO2 vs. Dose for pair ",i))
+  print(p)
   }
 
 

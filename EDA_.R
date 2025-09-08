@@ -40,8 +40,14 @@ for (i in unique(data$pair)){
 
 
 ## Comparing substrate indicators vs. individual effects for each
-summary(lm(VO2 ~ Dose + natural + glutamate + pyruvate + palmytol + octanoyl, data = data))
-summary(lm(VO2 ~ natural + Dose + Substrate, data = data))
+amino <- lm(VO2 ~ Dose + natural + glutamate + pyruvate + palmytol + octanoyl, data = data)
+substrate <- lm(VO2 ~ natural + Dose + Substrate, data = data)
+
+AIC(amino, substrate)
+BIC(amino, substrate)
+summary(amino)$adj.r.squared
+summary(substrate)$adj.r.squared
+
 ## And an interaction model
 summary(lm(VO2 ~ natural + Dose * Substrate, data = data))
 

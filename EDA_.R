@@ -1,5 +1,7 @@
 library(tidyverse)
 library(readxl)
+library(knitr)
+library(kableExtra)
 data = NULL
 for (i in excel_sheets("data.xls")){
   this_df <- read_excel("data.xls",sheet = i,skip = 1) |> 
@@ -44,9 +46,22 @@ amino <- lm(VO2 ~ Dose + natural + glutamate + pyruvate + palmytol + octanoyl, d
 substrate <- lm(VO2 ~ natural + Dose + Substrate, data = data)
 
 AIC(amino, substrate)
-BIC(amino, substrate)
 summary(amino)$adj.r.squared
 summary(substrate)$adj.r.squared
+
+model_comp <- data.frame(
+  Model = c("Amino Acids", "Substrate"),
+  df    = c(8, 9),
+  AIC   = c(7439.921, 7386.290),
+  Adjusted_R2 = c(0.721, 0.755)
+)
+
+kable(
+  model_comp,
+  booktabs = TRUE,
+  caption = "Model comparison using AIC and Adjusted R²"
+) |>
+  kable_styling(full_width = FALSE, position = "center")
 
 ## And an interaction model
 summary(lm(VO2 ~ natural + Dose * Substrate, data = data))

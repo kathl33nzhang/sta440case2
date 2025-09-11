@@ -12,8 +12,7 @@ for (i in excel_sheets("data.xls")){
 }
 data <- data |> 
   mutate(Dose = round(as.numeric(Dose), 2),
-         natural = if_else(str_detect(Subject,"NT"),1,0),
-         transgenic = if_else(str_detect(Subject,"Tg"),1,0),
+         natural = if_else(str_detect(Subject,"NT"),"Natural","Transgenic"),
          malate = if_else(str_detect(Substrate,"M"),1,0),
          glutamate = if_else(str_detect(Substrate,"G"),1,0),
          pyruvate = if_else(str_detect(Substrate,"P"),1,0),
@@ -36,9 +35,12 @@ for (i in unique(data$pair)){
     geom_point() +
     geom_smooth(method = "lm") + 
     facet_wrap(.~Substrate) +
-    labs(title = paste0("VO2 vs. Dose for pair ",i))
+    scale_color_manual(values = c("red","blue"),labels = c("0" = "Natural","1" = "Transgenic")) +
+    labs(title = paste0("VO2 vs. Dose for pair ",i),
+         color = "Genotype")
   print(p)
-  }
+}
+
 
 
 ## Comparing substrate indicators vs. individual effects for each
@@ -62,7 +64,3 @@ kable(
   caption = "Model comparison using AIC and Adjusted R²"
 ) |>
   kable_styling(full_width = FALSE, position = "center")
-
-## And an interaction model
-summary(lm(VO2 ~ natural + Dose * Substrate, data = data))
-

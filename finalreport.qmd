@@ -1,0 +1,20 @@
+---
+title: "Exploration of Multiple Treatments on the Metabolic Efficiency of the Mitochondria"
+authors: "Dom Fenoglio, Brian Kim, Kathleen Zhang"
+format: pdf
+header-includes:
+  - \usepackage{longtable}
+  - \usepackage{pdflscape}
+---
+
+## 1 Background
+
+## 2 Exploratory Data Analysis
+
+## 3 Modeling
+
+## 4 Analysis
+
+## 5 Conclusion and Future Work
+
+## 6 Appendix

@@ -1,6 +1,7 @@
 library(lme4)
 library(performance)
 library(lmtest)
+library(nlme)
 
 ## Different parameterizations but same model
 a <- model.matrix(VO2 ~ Substrate : natural + Dose  : natural : Substrate, data = data)
@@ -23,6 +24,12 @@ ICC = 423309/(423309+867144)
 lm_compare <- lm(VO2 ~ natural * Dose * Substrate , data = data)
 summary(lm_compare)
 lrtest(lmm1,lm_compare)
+
+## Comparisn to GLS model, not working rn but will look into
+
+gls_compare <-nlme::gls(VO2 ~ natural * Dose * Substrate,
+                        corr=corCompSymm(value=0.5,form=~1|pair),data=data)
+summary(gls.out)
 
 ## Looking at residuals for LMM model
 par(mfrow=c(1,2),las=1)

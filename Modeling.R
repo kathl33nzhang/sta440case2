@@ -2,8 +2,35 @@ library(lme4)
 library(performance)
 library(lmtest)
 library(nlme)
+library(tidyverse)
+library(readxl)
+library(knitr)
+library(kableExtra)
+data = NULL
+for (i in excel_sheets("data.xls")){
+  this_df <- read_excel("data.xls",sheet = i,skip = 1) |> 
+    select(-Basal) |> 
+    pivot_longer(cols = -Subject, names_to = "Dose",values_to = "VO2") |> 
+    mutate(Substrate = i)
+  data <- rbind(data,this_df)
+}
+data <- data |> 
+  mutate(Dose = round(as.numeric(Dose), 2),
+         natural = if_else(str_detect(Subject,"NT"),"Natural","Transgenic"),
+         malate = if_else(str_detect(Substrate,"M"),1,0),
+         glutamate = if_else(str_detect(Substrate,"G"),1,0),
+         pyruvate = if_else(str_detect(Substrate,"P"),1,0),
+         palmytol = if_else(str_detect(Substrate,"Pc"),1,0),
+         octanoyl = if_else(str_detect(Substrate,"Oc"),1,0),
+         pair = substr(Subject,3,3))
+
+## Should we filter out the 12.95 measure? it isn't basal but fit is much better without it
+## May also need to log transform outcome variable,
+data <- data |> 
+  filter(Dose < -13)
 
 ## Different parameterizations but same model
+## Not important for final presentation but cool for referenceß
 a <- model.matrix(VO2 ~ Substrate : natural + Dose  : natural : Substrate, data = data)
 b <- model.matrix(VO2 ~ natural * Dose * Substrate, data = data)
 summary(lm(VO2 ~ Substrate : natural + Dose  : natural : Substrate, data = data))
@@ -18,20 +45,46 @@ lmm1 <- lmer(VO2 ~ natural * Dose * Substrate + (1 | pair), data = data)
 summary(lmm1)
 performance::r2(lmm1)
 performance::icc(lmm1)
-ICC = 423309/(423309+867144)
+## calculating the same thing from summary output
+ICC = 582983/(582983+322707)
 
 ## Comparison to no group effect, we see a higher r2 for RE model, LRT shows higher LogLik for LMM
 lm_compare <- lm(VO2 ~ natural * Dose * Substrate , data = data)
 summary(lm_compare)
 lrtest(lmm1,lm_compare)
 
-## Comparisn to GLS model, not working rn but will look into
-
-gls_compare <-nlme::gls(VO2 ~ natural * Dose * Substrate,
-                        corr=corCompSymm(value=0.5,form=~1|pair),data=data)
-summary(gls.out)
-
-## Looking at residuals for LMM model
+## Looking at residuals vs. theoretical quantiles for LMM model
 par(mfrow=c(1,2),las=1)
 qqnorm(residuals(lmm1),main="Residuals")
 qqnorm(unlist(ranef(lmm1)$pair),main="Random Effects")
+
+## Looking at residuals for other predictors
+data |> 
+  drop_na() |> 
+  mutate(residuals = residuals(lmm1)) |> 
+  ggplot(aes(x = natural,y = residuals)) +
+  geom_point() +
+  geom_hline(yintercept = 0 , color = "blue", linetype = 2, linewidth = 2)
+
+## This one looks bad without dropping 12.95 observations
+data |> 
+  drop_na() |> 
+  mutate(residuals = residuals(lmm1)) |> 
+  ggplot(aes(x = Dose,y = residuals)) +
+  geom_point()+
+  geom_hline(yintercept = 0 , color = "blue", linetype = 2, linewidth = 2)
+
+data |> 
+  drop_na() |> 
+  mutate(residuals = residuals(lmm1)) |> 
+  ggplot(aes(x = Substrate,y = residuals)) +
+  geom_point()+
+  geom_hline(yintercept = 0 , color = "blue", linetype = 2, linewidth = 2)
+
+data |> 
+  drop_na() |> 
+  mutate(residuals = residuals(lmm1)) |> 
+  ggplot(aes(x = pair,y = residuals)) +
+  geom_point()+
+  geom_hline(yintercept = 0 , color = "blue", linetype = 2, linewidth = 2)
+

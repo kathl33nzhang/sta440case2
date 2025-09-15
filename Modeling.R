@@ -88,3 +88,39 @@ data |>
   geom_point()+
   geom_hline(yintercept = 0 , color = "blue", linetype = 2, linewidth = 2)
 
+## Fitting model to data
+## TODO: fix key, common scales on y-axis
+for (i in unique(data$pair)){
+  data_pair <- data |> 
+    filter(pair == i)
+p <- data_pair |> 
+  mutate(lmmpredictions = predict(lmm1,data_pair),
+         lmpredictions = predict(lm_compare,data_pair)) |> 
+  ggplot(aes(x = Dose, shape = natural)) +
+  geom_point(aes(y = VO2),color = "black") +
+  geom_point(aes(y = lmmpredictions),color = "blue") +
+  geom_smooth(aes(y = lmmpredictions),method = "lm") +
+  #geom_point(aes(y = lmpredictions),color = "red") +
+  facet_wrap(.~Substrate) +
+  labs(title = paste0("VO2 vs. Dose for pair ",i),
+       color = "Model")
+print(p)
+}
+
+## Comparing to og linear regression
+## TODO: fix key, common scales on y-axis
+for (i in unique(data$pair)){
+  data_pair <- data |> 
+    filter(pair == i)
+  p <- data_pair |> 
+    mutate(lmmpredictions = predict(lmm1,data_pair),
+           lmpredictions = predict(lm_compare,data_pair)) |> 
+    ggplot(aes(x = Dose, shape = natural)) +
+    #geom_point(aes(y = VO2),color = "black") +
+    geom_point(aes(y = lmmpredictions),color = "blue") +
+    geom_point(aes(y = lmpredictions),color = "red") +
+    facet_wrap(.~Substrate) +
+    labs(title = paste0("VO2 vs. Dose for pair ",i),
+         color = "Model")
+  print(p)
+}

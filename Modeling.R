@@ -90,37 +90,86 @@ data |>
 
 ## Fitting model to data
 ## TODO: fix key, common scales on y-axis
-for (i in unique(data$pair)){
-  data_pair <- data |> 
-    filter(pair == i)
-p <- data_pair |> 
-  mutate(lmmpredictions = predict(lmm1,data_pair),
-         lmpredictions = predict(lm_compare,data_pair)) |> 
-  ggplot(aes(x = Dose, shape = natural)) +
-  geom_point(aes(y = VO2),color = "black") +
-  geom_point(aes(y = lmmpredictions),color = "blue") +
-  geom_smooth(aes(y = lmmpredictions),method = "lm") +
-  #geom_point(aes(y = lmpredictions),color = "red") +
-  facet_wrap(.~Substrate) +
-  labs(title = paste0("VO2 vs. Dose for pair ",i),
-       color = "Model")
-print(p)
+for (i in unique(data$pair)) {
+  data_pair <- data |> filter(pair == i)
+  
+  data_pair <- data_pair |>
+    mutate(
+      lmmpredictions = predict(lmm1, newdata = data_pair)
+    ) |>
+    pivot_longer(
+      cols = c(VO2, lmmpredictions),
+      names_to = "Model", values_to = "Value"
+    )
+  
+  p <- ggplot(data_pair, aes(x = Dose, y = Value,
+                             shape = natural, color = Model)) +
+    geom_point() +
+    geom_line(
+      data = filter(data_pair, Model == "lmmpredictions"),
+      aes(group = interaction(natural, Substrate)),
+      linetype = "dotted", linewidth = 0.7
+    ) +
+    facet_wrap(~ Substrate) +
+    labs(
+      title = paste0("VO2 vs. Dose for pair ", i),
+      shape = "Genotype", color = "Model"
+    ) +
+    scale_shape_manual(
+      values = c("Natural" = 16, "Transgenic" = 17)
+    ) +
+    scale_color_manual(
+      values = c("VO2" = "black", "lmmpredictions" = "blue"),
+      labels = c("LMM fitted", "Observed")
+    )
+  
+  print(p)
 }
+
 
 ## Comparing to og linear regression
 ## TODO: fix key, common scales on y-axis
-for (i in unique(data$pair)){
-  data_pair <- data |> 
-    filter(pair == i)
-  p <- data_pair |> 
-    mutate(lmmpredictions = predict(lmm1,data_pair),
-           lmpredictions = predict(lm_compare,data_pair)) |> 
-    ggplot(aes(x = Dose, shape = natural)) +
-    #geom_point(aes(y = VO2),color = "black") +
-    geom_point(aes(y = lmmpredictions),color = "blue") +
-    geom_point(aes(y = lmpredictions),color = "red") +
-    facet_wrap(.~Substrate) +
-    labs(title = paste0("VO2 vs. Dose for pair ",i),
-         color = "Model")
+for (i in unique(data$pair)) {
+  data_pair <- data |> filter(pair == i)
+  
+  # compute predictions outside of mutate
+  preds_lmm <- predict(lmm1, newdata = data_pair)
+  preds_lm  <- predict(lm_compare, newdata = data_pair)
+  
+  data_pair <- data_pair |>
+    mutate(
+      lmmpredictions = preds_lmm,
+      lmpredictions  = preds_lm
+    ) |>
+    pivot_longer(
+      cols = c(lmmpredictions, lmpredictions),
+      names_to = "Source", values_to = "Value"
+    )
+  
+  p <- ggplot(data_pair, aes(x = Dose, y = Value,
+                             shape = natural, color = Source)) +
+    geom_point() +
+    geom_line(
+      data = filter(data_pair, Source == "lmmpredictions"),
+      aes(group = interaction(Source, natural)),
+      linetype = "dotted", linewidth = 0.7
+    ) +
+    geom_line(
+      data = filter(data_pair, Source == "lmpredictions"),
+      aes(group = interaction(Source, natural)),
+      linetype = "dotted", linewidth = 0.7
+    ) +
+    facet_wrap(~ Substrate) +
+    labs(
+      title = paste0("VO2 vs. Dose for pair ", i),
+      shape = "Genotype", color = "Model"
+    ) +
+    scale_shape_manual(values = c("Natural" = 16, "Transgenic" = 17)) +
+    scale_color_manual(
+      values = c("lmmpredictions" = "blue",
+                 "lmpredictions"  = "red"),
+      labels = c("LMM fitted", "LM fitted")
+    )
+  
   print(p)
 }

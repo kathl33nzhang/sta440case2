@@ -1,3 +1,4 @@
+library(lmerTest)
 library(lme4)
 library(performance)
 library(lmtest)
@@ -42,7 +43,11 @@ summary(lm(VO2 ~ Substrate - 1, data = data))
 
 ## Random effects model with pair as a random intercept
 lmm1 <- lmer(VO2 ~ natural * Dose * Substrate + (1 | pair), data = data)
+lmm2 <- lmer(VO2 ~ Dose * Substrate + (1 | pair), data = data)
 summary(lmm1)
+anova(lmm1)
+anova(lmm1,lmm2)
+lrtest(lmm1,lmm2)
 performance::r2(lmm1)
 performance::icc(lmm1)
 ## calculating the same thing from summary output
@@ -173,3 +178,46 @@ for (i in unique(data$pair)) {
   
   print(p)
 }
+
+## After 9/16 class
+data_pred <- data |> 
+  mutate(pair = 7)
+preds <- predict(lmm1, data_pred,allow.new.levels = TRUE)
+data_pred |> 
+  mutate(predictions = preds) |> 
+  pivot_longer(cols = c(predictions, VO2),
+               names_to = "measure",
+               values_to = "value") |>
+  group_by(Substrate,measure,Dose) |> 
+  summarize(mean_value = mean(value, na.rm = TRUE),
+            standard_error = sd(value, na.rm = TRUE)) |> 
+ggplot(aes(x = Dose, y = mean_value, color = measure)) +
+  geom_point() +
+  facet_wrap(.~Substrate)
+
+
+data_pred |> 
+  mutate(predictions = preds) |> 
+  pivot_longer(cols = c(predictions, VO2),
+               names_to = "measure",
+               values_to = "value") |>
+  group_by(Substrate, measure, Dose) |> 
+  summarize(
+    mean_value = mean(value, na.rm = TRUE),
+    standard_error = sd(value, na.rm = TRUE) / sqrt(n()),  # SE
+    .groups = "drop"
+  ) |> 
+  ggplot(aes(x = Dose, y = mean_value, color = measure)) +
+  geom_point() +
+  geom_line() +  
+  geom_line(
+    data = \(d) d |> filter(measure == "predictions"),
+    aes(y = mean_value + standard_error),
+    linetype = "dotted"
+  ) +
+  geom_line(
+    data = \(d) d |> filter(measure == "predictions"),
+    aes(y = mean_value - standard_error),
+    linetype = "dotted"
+  ) +
+  facet_wrap(. ~ Substrate)

@@ -221,3 +221,90 @@ data_pred |>
     linetype = "dotted"
   ) +
   facet_wrap(. ~ Substrate)
+
+# cleaning up graphs 
+
+data_pred <- data |> 
+  mutate(pair = 7)
+
+preds <- predict(lmm1, data_pred, allow.new.levels = TRUE)
+
+data_pred |>
+  mutate(predictions = preds) |>
+  tidyr::pivot_longer(cols = c(predictions, VO2),
+                      names_to = "measure",
+                      values_to = "value") |>
+  dplyr::group_by(Substrate, measure, Dose) |>
+  dplyr::summarize(mean_value = mean(value, na.rm = TRUE),
+                   standard_error = sd(value, na.rm = TRUE),
+                   .groups = "drop") |>
+  ggplot(aes(x = Dose, y = mean_value, color = measure)) +
+  geom_point(size = 2, alpha = 0.85) +
+  geom_errorbar(aes(ymin = mean_value - standard_error,
+                    ymax = mean_value + standard_error),
+                width = 0.025, linewidth = 0.3, alpha = 0.6) +
+  facet_wrap(. ~ Substrate) +
+  labs(title = "Dose vs. Mean VO₂",
+    x = "Dose",
+    y = "Mean VO₂ (a.u.)",
+    color = "Data Type"
+  ) +
+  scale_y_continuous(
+    breaks = seq(0, 16000, 2000)  
+  ) + 
+  theme_bw() + 
+  theme(
+    legend.position = "bottom",
+    strip.text = element_text(face = "bold"),
+    panel.grid.major = element_line(linewidth = 0.2),
+    panel.grid.minor = element_blank(),
+    axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1)
+  )
+
+# next one
+
+data_pred |>
+  mutate(predictions = preds) |>
+  tidyr::pivot_longer(cols = c(predictions, VO2),
+                      names_to = "measure",
+                      values_to = "value") |>
+  dplyr::group_by(Substrate, measure, Dose) |>
+  dplyr::summarize(
+    mean_value = mean(value, na.rm = TRUE),
+    standard_error = sd(value, na.rm = TRUE) / sqrt(n()),  # SE
+    .groups = "drop"
+  ) |>
+  ggplot(aes(x = Dose, y = mean_value, color = measure)) +
+  geom_point(size = 2, alpha = 0.85) +
+  geom_line(linewidth = 0.6) +  
+  geom_line(
+    data = \(d) d |> dplyr::filter(measure == "predictions"),
+    aes(y = mean_value + standard_error),
+    linetype = "dotted",
+    linewidth = 0.4
+  ) +
+  geom_line(
+    data = \(d) d |> dplyr::filter(measure == "predictions"),
+    aes(y = mean_value - standard_error),
+    linetype = "dotted",
+    linewidth = 0.4
+  ) +
+  facet_wrap(. ~ Substrate) +
+  labs(
+    title = "Predictions vs. Observed VO₂",
+    x = "Dose",
+    y = "Mean VO₂ (a.u.)",
+    color = "Data Type"
+  ) +
+  scale_y_continuous(
+    breaks = seq(0, 16000, 2000)
+  ) +
+  theme_bw() +
+  theme(
+    legend.position = "bottom",
+    strip.text = element_text(face = "bold"),
+    panel.grid.major = element_line(linewidth = 0.2),
+    panel.grid.minor = element_blank(),
+    axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1)
+  )
+

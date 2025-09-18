@@ -71,6 +71,25 @@ data |>
   geom_point() +
   geom_hline(yintercept = 0 , color = "blue", linetype = 2, linewidth = 2)
 
+#cleaned up graph 
+data |> 
+  drop_na() |> 
+  mutate(residuals = residuals(lmm1)) |> 
+  ggplot(aes(x = natural, y = residuals)) +
+  geom_point(size = 2, alpha = 0.6) +
+  geom_hline(yintercept = 0, color = "blue", linetype = "dashed", linewidth = 1) +
+  labs(
+    title = "Residuals by Genotype",
+    x = "Genotype",
+    y = "Model Residuals"
+  ) +
+  theme_minimal(base_size = 14) +
+  theme(
+    plot.title = element_text(face = "bold", hjust = 0.5),
+    axis.text.x = element_text(),
+    panel.grid.minor = element_blank()
+  )
+
 ## This one looks bad without dropping 12.95 observations
 data |> 
   drop_na() |> 
@@ -79,6 +98,25 @@ data |>
   geom_point()+
   geom_hline(yintercept = 0 , color = "blue", linetype = 2, linewidth = 2)
 
+#cleaned up graph 
+data |> 
+  drop_na() |> 
+  mutate(residuals = residuals(lmm1)) |> 
+  ggplot(aes(x = Dose, y = residuals)) +
+  geom_point(size = 2, alpha = 0.6) +
+  geom_hline(yintercept = 0, color = "blue", linetype = "dashed", linewidth = 1) +
+  labs(
+    title = "Residuals by Dose",
+    x = "Dose",
+    y = "Model Residuals"
+  ) +
+  theme_minimal(base_size = 14) +
+  theme(
+    plot.title = element_text(face = "bold", hjust = 0.5),
+    axis.text.x = element_text(),
+    panel.grid.minor = element_blank()
+  )
+
 data |> 
   drop_na() |> 
   mutate(residuals = residuals(lmm1)) |> 
@@ -86,12 +124,53 @@ data |>
   geom_point()+
   geom_hline(yintercept = 0 , color = "blue", linetype = 2, linewidth = 2)
 
+#cleaned up graph 
+
+data |> 
+  drop_na() |> 
+  mutate(residuals = residuals(lmm1)) |> 
+  ggplot(aes(x = Substrate, y = residuals)) +
+  geom_point(size = 2, alpha = 0.6) +
+  geom_hline(yintercept = 0, color = "blue", linetype = "dashed", linewidth = 1) +
+  labs(
+    title = "Residuals by Substrate",
+    x = "Substrate",
+    y = "Model Residuals"
+  ) +
+  theme_minimal(base_size = 14) +
+  theme(
+    plot.title = element_text(face = "bold", hjust = 0.5),
+    axis.text.x = element_text(),
+    panel.grid.minor = element_blank()
+  )
+
 data |> 
   drop_na() |> 
   mutate(residuals = residuals(lmm1)) |> 
   ggplot(aes(x = pair,y = residuals)) +
   geom_point()+
   geom_hline(yintercept = 0 , color = "blue", linetype = 2, linewidth = 2)
+
+#cleaned up graph 
+
+data |> 
+  drop_na() |> 
+  mutate(residuals = residuals(lmm1)) |> 
+  ggplot(aes(x = pair, y = residuals)) +
+  geom_point(size = 2, alpha = 0.6) +
+  geom_hline(yintercept = 0, color = "blue", linetype = "dashed", linewidth = 1) +
+  labs(
+    title = "Residuals by Pair",
+    x = "Pair",
+    y = "Model Residuals"
+  ) +
+  theme_minimal(base_size = 14) +
+  theme(
+    plot.title = element_text(face = "bold", hjust = 0.5),
+    axis.text.x = element_text(),
+    panel.grid.minor = element_blank()
+  )
+
 
 ## Fitting model to data
 ## TODO: fix key, common scales on y-axis

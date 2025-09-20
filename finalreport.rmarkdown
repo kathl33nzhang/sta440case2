@@ -7,6 +7,8 @@ header-includes:
   - \usepackage{pdflscape}
 ---
 
+
+
 ## 1 Background
 
 The mitochondria are considered the "powerhouse" of the cell, responsible for generating the cell's usable energy through oxidative phosphorylation, a process necessary for all biological processes, particularly in high-demand organs such as the heart, brain, and muscles. Their proper function is critical for overall health, as disruptions to their function are associated with various health issues, such as cancer, heart disease, and Alzheimer's.
@@ -26,6 +28,8 @@ The main motivation for our analysis is to quantitatively test hypotheses about 
 ## 6 Appendix
 
 ### Exploratory Data Analysis
+
+
 
 ```{r, echo = FALSE, message = FALSE, warning = FALSE}
 # loading in data and libraries 
@@ -116,7 +120,11 @@ kable(
   kable_styling(full_width = FALSE, position = "center")
 ```
 
+
+
 ### Modeling
+
+
 
 ```{r, echo = FALSE}
 data = NULL
@@ -453,3 +461,4 @@ data_pred |>
 
 
 ```
+

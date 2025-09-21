@@ -8,7 +8,7 @@ header-includes:
 ---
 
 ## 1 Background
-1
+
 The mitochondria are considered the "powerhouse" of the cell, responsible for generating the cell's usable energy through oxidative phosphorylation, a process necessary for all biological processes, particularly in high-demand organs such as the heart, brain, and muscles. Their proper function is critical for overall health, as disruptions to their function are associated with various health issues, such as cancer, heart disease, and Alzheimer's.
 
 One way to examine mitochondrial function is by using the multiplexed assay platform, a laboratory method that allows researchers to measure multiple dimensions of mitochondrial activity across different substrates and energy demand conditions. By measuring respiration rates under different combinations of substrates across different experimental settings, such as genetic background and dose, researchers hope to better understand these effects on the metabolic and functional phenotypes of mitochondria.
@@ -17,11 +17,57 @@ The main motivation for our analysis is to quantitatively test hypotheses about 
 
 ## 2 Exploratory Data Analysis
 
+We explored patterns of $VO_2$ production across genotype, substrate, and dose to assess whether systematic differences exist.
+
+Looking at graph 1 we can see that overall the genotype has a clear effect on $VO_2$ production. Across nearly all substrates we can see the transgenic mice display higher $VO_2$ production than natural mice. For substrates of $PMOc$ and $PMPc$ we can see different slopes for $VO_2$ production vs Dose and as the doses become higher, the effects of genotype becomes more significant. So the effect is most pronounced when the doses are higher in $PMPc$ and $PMOc$ and for $OcM$ and $PcM$ we just see a clear higher $VO_2$ production for all doses as the slopes for $OcM$ and $PcM$ are similar.
+
+We also can see that substrates involving Octanoyl Carnitine $Oc$ and Palmitoyl-Carnitine $Pc$ has a more pronounced separation between transgenic vs natural mouse. So these results suggest transgenic mice have enhanced respiratory capacity
+
+$OcM$ and $PcM$ show a relatively flat dose-response curves for both genotypes which suggests limited sensitivity to dose changes and $PMOc$ and $PMPc$ substrates highlight a stronger genotype effect as the transgenic mice has a more pronounced effect to dose. This points to an interaction between substrate and genotype where certain substrates amplify the genotype-specific differences in the $VO_2$ production efficiency.
+
+#### Pair - Level Variation
+
+We next examined the effects of pairs.
+
+#### Conclusions
+
+1.  Genotype matters: transgenic mice had higher $VO_2$ than nautral mice across most conditions
+2.  Substrate seems to matter too: We saw certain substrates had a larger effect in the $VO_2$ production as $PMOc$ and $PMPc$ tended to effect the transgenic mice more while $OcM$ and $PcM$ tended to have an equal effect on transgenic and natural mice.
+3.  Pairs\
+
 ## 3 Modeling
+
+We explored 3 different models whose equations are shown below.
+
+$$
+Model\ 1:\ VO_2 ~ natural * Dose * Substrate + (1|pair)
+$$
+$$
+Model\ 2:\ VO_2 ~ natural * Dose * Substrate
+$$
+$$
+Model\ 3:\ VO_2 ~ Dose * Substrate + (1|pair)
+$$
+
+Model 1 is the model we ended up choosing and this is the fixed model including a random intercept for pair. Model 2 is just the fixed effects with no random intercept and Model 3 is just the mixed model without genotype to test if genotype contributes beyond the dose and substrate.
+
+Looking at the log likelihoods for model 1 (shown in table \_\_\_\_) we can see a log likelihood value of -2489.7 and for model 2 and 3 they are -2759.2 and -2724.9 respectively. Since a higher log likelihood means a better fit we can see model 1 has the highest log likelihood and fits better than model 2 and 3. Looking at the chi squared and the p value which compare the model fit of model 2 vs 1 and model 3 vs 1 we can see that the p values are very small (close to 0). Since the p values are very small the improvement in model 1 is not by chance so in model 2 it shows the random intercept for pair is essential. The p value comparing model 3 and 1 is also very small (close to 0) which suggests that genotype is also significant. Since the p values are very small the worse fit of model 2 and 3 is statistically significant which indicates their ommitted terms are necessary.
+
+Looking at the ICC values shown in (table \_\_\_\_\_) which is the ratio of within pair variability to total variability, the value of 0.644 means about 64% of the remaining variability is due to which pair is sampled and this confirms a strong within pair clustering.
+
+The conditional $R^2$ value is the variance explained by design and the pair difference. Looking at the results shown in (table \_\_\_\_\_\_) letting each pair have its own baseline we explain about 96.5% of the variaibility
+
+The Marginal $R^2$ is variance explained by design factors and this only captures about 90% of the variability across all observations as shown in (table\_\_\_\_\_)
 
 ## 4 Analysis
 
 ## 5 Conclusion and Future Work
+
+Our analysis showed strong evidence that genotype significantly influences $VO_2$ production conditional on both substrate and dose. Across nearly all experimental conditions, transgenic mice displayed a higher $VO_2$ production relative to natural mice with some substrates amplifying this effect more than others. These findings show that transgenic geotype is associated with enhanced metabolic efficiency
+
+However, some limitiations to keep in mind is that first we excluded the observations with the 12.95 dosage.....
+
+Future work should therefore focus on extending the analysis to higher doses, exploring a broader range of substrates, and leveraging larger samples to better account for variability across experimental pairs. These extensions would help clarify the extent to which the observed genotype effects generalize across different biological and experimental contexts.
 
 ## 6 Appendix
 

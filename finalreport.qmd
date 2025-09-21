@@ -8,7 +8,7 @@ header-includes:
 ---
 
 ## 1 Background
-
+1
 The mitochondria are considered the "powerhouse" of the cell, responsible for generating the cell's usable energy through oxidative phosphorylation, a process necessary for all biological processes, particularly in high-demand organs such as the heart, brain, and muscles. Their proper function is critical for overall health, as disruptions to their function are associated with various health issues, such as cancer, heart disease, and Alzheimer's.
 
 One way to examine mitochondrial function is by using the multiplexed assay platform, a laboratory method that allows researchers to measure multiple dimensions of mitochondrial activity across different substrates and energy demand conditions. By measuring respiration rates under different combinations of substrates across different experimental settings, such as genetic background and dose, researchers hope to better understand these effects on the metabolic and functional phenotypes of mitochondria.

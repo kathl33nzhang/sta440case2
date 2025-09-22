@@ -19,25 +19,27 @@ The main motivation for our analysis is to quantitatively test hypotheses about 
 
 We explored patterns of $VO_2$ production across genotype, substrate, and dose to assess whether systematic differences exist.
 
-Looking at graph 1 we can see that overall the genotype has a clear effect on $VO_2$ production. Across nearly all substrates we can see the transgenic mice display higher $VO_2$ production than natural mice. For substrates of $PMOc$ and $PMPc$ we can see different slopes for $VO_2$ production vs Dose and as the doses become higher, the effects of genotype becomes more significant. So the effect is most pronounced when the doses are higher in $PMPc$ and $PMOc$ and for $OcM$ and $PcM$ we just see a clear higher $VO_2$ production for all doses as the slopes for $OcM$ and $PcM$ are similar.
-
-We also can see that substrates involving Octanoyl Carnitine $Oc$ and Palmitoyl-Carnitine $Pc$ has a more pronounced separation between transgenic vs natural mouse. So these results suggest transgenic mice have enhanced respiratory capacity
+Looking at figure 1 we can see that genotype has an effect on $VO_2$ production. Across nearly all substrates we can see the transgenic mice display higher $VO_2$ production than natural mice. For substrates of $PMOc$ and $PMPc$ we can see different slopes for $VO_2$ production vs Dose and as the doses become higher, the effects of genotype becomes more significant. This suggests a need for an interaction between dose and substrate. The effect is most pronounced when the doses are higher in $PMPc$ and $PMOc$, and for $OcM$ and $PcM$ we see a clear higher $VO_2$ production for all doses. We also can see that substrates involving Octanoyl Carnitine $Oc$ and Palmitoyl-Carnitine $Pc$ has a more pronounced separation between transgenic vs natural mouse.
 
 $OcM$ and $PcM$ show a relatively flat dose-response curves for both genotypes which suggests limited sensitivity to dose changes and $PMOc$ and $PMPc$ substrates highlight a stronger genotype effect as the transgenic mice has a more pronounced effect to dose. This points to an interaction between substrate and genotype where certain substrates amplify the genotype-specific differences in the $VO_2$ production efficiency.
 
 #### Pair - Level Variation
 
-We next examined the effects of pairs.
+The researchers' experimental design, which matched a transgenic mouse with a natural type mouse and tested each pair on a different day, could induce some added variation that dose and substrate cannot account for. This is because the experimental setup could vary slightly day-to-day, influencing the measurement of our response variable $VO_2$.
+
+Looking at Figure 2, we can see that there does in fact seem to be systematic differences on the pair level. For example, pair 5 exhibits a much larger gap between $VO_2$ production of transgenic and natural type mice for $OcM$ and $PcM$. Across every pair, we see enough variation between the genotype-$VO_2$ relationship to warrant consideration in our final modeling decisions.
 
 #### Conclusions
 
-1.  Genotype matters: transgenic mice had higher $VO_2$ than nautral mice across most conditions
-2.  Substrate seems to matter too: We saw certain substrates had a larger effect in the $VO_2$ production as $PMOc$ and $PMPc$ tended to effect the transgenic mice more while $OcM$ and $PcM$ tended to have an equal effect on transgenic and natural mice.
-3.  Pairs\
+1.  Genotype appears significantly correlated with $VO_2$ production: transgenic mice had higher $VO_2$ than nautral mice across most conditions
+2.  Substrate and dose seem to matter as well: We saw certain substrates had a larger effect in the $VO_2$ production as $PMOc$ and $PMPc$ tended to effect the transgenic mice more while $OcM$ and $PcM$ tended to have an equal effect on transgenic and natural mice. This relationship was highly dependent on dose.
+3.  Pairs: While researchers do not need to know the specific measurement predictions for each pair, we need to account for variation on the pair level in our model.
 
 ## 3 Modeling
 
-We explored 3 different models whose equations are shown below.
+To account for all of the points noted above, we chose to fit a fully interactive linear model regressing genotype, dose, and substrate on $VO_2$. Furthermore, we included a random intercept for pair, allowing us to include this added variation in the model while retaining the ability to predict on an unobserved pair. 
+
+Comparing this model to two other models -- a model excluding genotype and a model excluding the random intercept -- we see that our chosen equation is the best fit for the data.
 
 $$
 Model\ 1:\ VO_2 ~ natural * Dose * Substrate + (1|pair)
@@ -49,25 +51,25 @@ $$
 Model\ 3:\ VO_2 ~ Dose * Substrate + (1|pair)
 $$
 
-Model 1 is the model we ended up choosing and this is the fixed model including a random intercept for pair. Model 2 is just the fixed effects with no random intercept and Model 3 is just the mixed model without genotype to test if genotype contributes beyond the dose and substrate.
+From Table 1, we can see a log likelihood value of -2489.7 for our chosen model, and lower values for model 2 and 3 (-2759.2 and -2724.9, respectively). This supports the conclusion that our chosen model captures the behavior of the data the best. 
 
-Looking at the log likelihoods for model 1 (shown in table \_\_\_\_) we can see a log likelihood value of -2489.7 and for model 2 and 3 they are -2759.2 and -2724.9 respectively. Since a higher log likelihood means a better fit we can see model 1 has the highest log likelihood and fits better than model 2 and 3. Looking at the chi squared and the p value which compare the model fit of model 2 vs 1 and model 3 vs 1 we can see that the p values are very small (close to 0). Since the p values are very small the improvement in model 1 is not by chance so in model 2 it shows the random intercept for pair is essential. The p value comparing model 3 and 1 is also very small (close to 0) which suggests that genotype is also significant. Since the p values are very small the worse fit of model 2 and 3 is statistically significant which indicates their ommitted terms are necessary.
+NEED TO FIX p-values? Looking at the chi squared and the p value which compare the model fit of model 2 vs 1 and model 3 vs 1 we can see that the p values are very small (close to 0). Since the p values are very small the improvement in model 1 is not by chance so in model 2 it shows the random intercept for pair is essential. The p value comparing model 3 and 1 is also very small (close to 0) which suggests that genotype is also significant. Since the p values are very small the worse fit of model 2 and 3 is statistically significant which indicates their ommitted terms are necessary.
 
-Looking at the ICC values shown in (table \_\_\_\_\_) which is the ratio of within pair variability to total variability, the value of 0.644 means about 64% of the remaining variability is due to which pair is sampled and this confirms a strong within pair clustering.
+Furthermore, Table 2 shows our models intraclass correlation (ICC), which is the ratio of pair variability to total variability. An ICC value of 0.644 is a strong piece of evidence in support of including a random intercept for pair, as it signifies that the variation across pairs is non-neglible.
 
-The conditional $R^2$ value is the variance explained by design and the pair difference. Looking at the results shown in (table \_\_\_\_\_\_) letting each pair have its own baseline we explain about 96.5% of the variaibility
-
-The Marginal $R^2$ is variance explained by design factors and this only captures about 90% of the variability across all observations as shown in (table\_\_\_\_\_)
+The conditional $R^2$ value in Table 2 represents the variance explained by our model. By allowing each pair have its own intercept we explain about 96.5% of the total variability in our data, higher than the 90% explained marginally by the fixed effects.
 
 ## 4 Analysis
+
+TODO: bonferroni correction for p-values, include/analyze graph and give interpretation examples (see presentation).
 
 ## 5 Conclusion and Future Work
 
 Our analysis showed strong evidence that genotype significantly influences $VO_2$ production conditional on both substrate and dose. Across nearly all experimental conditions, transgenic mice displayed a higher $VO_2$ production relative to natural mice with some substrates amplifying this effect more than others. These findings show that transgenic geotype is associated with enhanced metabolic efficiency
 
-However, some limitiations to keep in mind is that first we excluded the observations with the 12.95 dosage.....
+However, one major limitation can be seen in Figure 4, the residual plot across dosage levels. We see some evidence of a nonlinear relationship between dose and $VO_2$ production conditional on substrate and genotype, something that was not accounted for in our model. We chose to live the relationship linear because it was our understanding that the researchers' had some biological motivation behind this claim. Since our analysis shows evidence arguing against this claim, further work should include interrogating these assumptions, especially among higher dosage levels. 
 
-Future work should therefore focus on extending the analysis to higher doses, exploring a broader range of substrates, and leveraging larger samples to better account for variability across experimental pairs. These extensions would help clarify the extent to which the observed genotype effects generalize across different biological and experimental contexts.
+In addition, Future work should focus on exploring a broader range of substrates and leveraging larger samples to better account for variability across experimental pairs. These extensions would help clarify the extent to which the observed genotype effects generalize across different biological and experimental contexts.
 
 ## 6 Appendix
 

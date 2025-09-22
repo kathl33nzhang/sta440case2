@@ -53,7 +53,7 @@ The main motivation for our analysis is to quantitatively test hypotheses about 
 
 ## 2 Exploratory Data Analysis
 
-The data for the study were collected from skeletal muscle mitochondria isolated from non-transgenic (control) and transgenic mice. The independent variables used from the dataset were measured to assess whether systematic differences exist in $$VO_2$$ production, our response variable, is the treatment variable $genotype$ (whether the mouse is transgenic or not), $substrate\ type$ (the substrate provided to mitochondria), and $dose$ (estimated levels of free energy to ATP hydrolysis).
+The data for the study were collected from skeletal muscle mitochondria isolated from non-transgenic (control) and transgenic mice. The independent variables used from the dataset were measured to assess whether systematic differences exist in $VO_2$ production, our response variable, is the treatment variable $genotype$ (whether the mouse is transgenic or not), $substrate\ type$ (the substrate provided to mitochondria), and $dose$ (estimated levels of free energy to ATP hydrolysis).
 
 Looking at Figure 1, we can see that genotype affects $VO_2$ production. Across nearly all substrates, we can see that the transgenic mice display higher $VO_2$ production than natural mice. For substrates of $PMOc$ and $PMPc$, we can see different slopes for $VO_2$ production vs. dose, and as the doses become higher, the effects of the genotype become more significant. This suggests a need for an interaction between dose and substrate. The effect is most pronounced when the doses are higher in $PMPc$ and $PMOc$, and for $OcM$ and $PcM$ we see a clear higher $VO_2$ production for all doses. We can also see that substrates involving Octanoyl Carnitine $Oc$ and Palmitoyl-Carnitine $Pc$ has a more pronounced separation between transgenic vs natural mice.
 
@@ -63,7 +63,7 @@ $OcM$ and $PcM$ show a relatively flat dose-response curve for both genotypes, w
 
 The researchers' experimental design, which matched a transgenic mouse with a natural type mouse and tested each pair on a different day, could induce some added variation that dose and substrate cannot account for. This is because the experimental setup could vary slightly day-to-day, influencing the measurement of our response variable $VO_2$.
 
-Looking at Figure 2, we can see that there does in fact seem to be systematic differences on the pair level. For example, pair 5 exhibits a much larger gap between $VO_2$ production of transgenic and natural type mice for $OcM$ and $PcM$. Across every pair, we see enough variation between the genotype-$VO_2$ relationship to warrant consideration in our final modeling decisions.
+Looking at Figures 2 and 3, we can see that there does in fact seem to be systematic differences on the pair level. Pair 5 exhibits a much larger gap between $VO_2$ production of transgenic and natural type mice for $OcM$ and $PcM$ compared to pair 2. We saw enough variation across every pair to warrant consideration in our final modeling decisions.
 
 #### Substrate vs. Amino Acid Modeling
 
@@ -74,35 +74,19 @@ In addition to visual exploration, we also compared two different ways of repres
 
 From Table 1, we can see that the substrate model provided the better fit based on model comparison statistics (AIC = 7386.29, adj. $R^2$ = 0.755) compared to the amino acid model (AIC = 7439.92, adj. $R^2$ = 0.721), explaining the variation in $VO_2$ more effectively. However, the amino acid model is limited in that it assumes the effects of these fuels are additive and constant, which is unlikely biologically, given the complicated interactions of the mitochondria. The representation is still useful in understanding which fuel components may be driving observed differences.
 
-#### Conclusions
-
-1.  Genotype appears significantly correlated with $VO_2$ production: transgenic mice had higher $VO_2$ than natural mice across most conditions
-2.  Substrate and dose seem to matter as well: We saw certain substrates had a larger effect in the $VO_2$ production as $PMOc$ and $PMPc$ tended to affect the transgenic mice more while $OcM$ and $PcM$ tended to have an equal effect on transgenic and natural mice. This relationship was highly dependent on dose.
-3.  While researchers do not need to know the specific measurement predictions for each pair, we need to account for variation on the pair level in our model.
-4.  Treating substrates as bundled conditions seems to capture variation in $VO_2$ more effectively.
-
 ## 3 Modeling
 
 To account for all of the points noted above, we chose to fit a fully interactive linear model regressing genotype, dose, and substrate on $VO_2$. Furthermore, we included a random intercept for pair, allowing us to include this added variation in the model while retaining the ability to predict on an unobserved pair. Finally, we treated dose as a numerical value because the researchers' assumption of linearity between dose and VO2.
 
-From Table 1, we can see a log likelihood value of -2489.7 for our chosen model. Compared to a model excluding genotype, this likelihood is statistically significant as a more preferred model according to a chi-squared test. Furthermore, our models intraclass correlation (ICC), which is the ratio of pair variability to total variability. An ICC value of 0.644 is a strong piece of evidence in support of including a random intercept for pair, as it signifies that the variation across pairs is non-neglible.
+From Table 2, we can see a log likelihood value of -2489.7 for our chosen model. Compared to a model excluding genotype, this likelihood is statistically significant as a more preferred model according to a chi-squared test. Furthermore, our models intraclass correlation (ICC), which is the ratio of pair variability to total variability. An ICC value of 0.644 is a strong piece of evidence in support of including a random intercept for pair, as it signifies that the variation across pairs is non-neglible.
 
 Finally, we see that the conditional $R^2$ value, which represents the variance explained by our model. By allowing each pair have its own intercept we explain about 96.5% of the total variability in our data, higher than the 90% explained marginally by only the fixed effects.
 
 
 $$
-Our\ model:\ VO_2 = Genotype * Dose * Substrate + (1|pair) + \epsilon
+VO_2 = Genotype * Dose * Substrate + (1|pair) + \epsilon
 $$
 
-
-```{r}
-rbind(Measure = c("Value"),
-      LogLik = c(-2489.7),
-      ICC = c(0.644),
-      Conditional_R2 = c(0.965),
-      Marginal_R2 = c(0.901)) |> 
-  kable()
-```
 
 
 ## 4 Results
@@ -111,66 +95,7 @@ rbind(Measure = c("Value"),
 
 To assess evidence of an overall difference between transgenic and natural type mice, we conducted a t-test between the groups, accounting for the known relationships between substrates and dose we saw in our EDA. Table 2 shows the difference in means between transgenic and natural type mice, as well as a t-statistic and p-value. We see that transgenic mice, on average, have a VO2 production 1192.72 units higher than natural type mice, controlling for dose and substrate. So, we can reject the null hypothesis that there is no difference between the two groups.
 
-```{r}
-overall_effect <- summary(lm(VO2 ~ natural + Dose*Substrate, data = data))$coefficients
-rbind(Measure = c("Value"),
-      MeanDifference = c(1192.2),
-      TValue = c(12.177),
-      PValue = c(0)) |> 
-  kable()
-```
-
 #### Research question 2: How does our model explain the dependence of the relationship on Dose, Substrate, and Pair
-
-```{r}
-p_values <- summary(lmm1)$coefficients[,"Pr(>|t|)"]
-
-p_values_bonf <- p.adjust(p_values, method = "holm")
-
-data.frame(
-  Term = rownames(summary(lmm1)$coefficients),
-  P_value = p_values
-) |> 
-  kable()
-```
-
-
-```{r,echo=FALSE,message=FALSE,warning=FALSE}
-preds <- predict(lmm1, data, allow.new.levels = TRUE)
-graph_data <- data |>
-  mutate(predictions = preds) |>
-  tidyr::pivot_longer(cols = c(predictions, VO2),
-                      names_to = "measure",
-                      values_to = "value") |>
-  dplyr::group_by(Substrate, measure, Dose,natural) |>
-  dplyr::summarize(mean_value = mean(value, na.rm = TRUE),
-                   standard_error = sd(value, na.rm = TRUE),
-                   .groups = "drop")
-graph_data |> 
-  ggplot(aes(x = Dose, y = mean_value, color = measure,shape = natural)) +
-  geom_point(size = 2, alpha = 0.85) +
-  geom_errorbar(data = filter(graph_data, measure == "predictions"),aes(ymin = mean_value - standard_error,
-                    ymax = mean_value + standard_error),
-                width = 0.025, linewidth = 0.3, alpha = 0.6) +
-  facet_wrap(. ~ Substrate) +
-  labs(title = "Oxygen efficiency predictions by genotype",
-    x = "Dose",
-    y = "VO2",
-    color = "Data Type",
-    shape = "Genotype"
-  ) +
-  scale_y_continuous(
-    breaks = seq(0, 16000, 2000)  
-  ) + 
-  theme_bw() + 
-  theme(
-    legend.position = "bottom",
-    strip.text = element_text(face = "bold"),
-    panel.grid.major = element_line(linewidth = 0.2),
-    panel.grid.minor = element_blank(),
-    axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1)
-  )
-```
 
 
 ## 5 Conclusion and Future Work
@@ -221,19 +146,21 @@ data <- data |>
 
 ```
 
-```{r, echo = FALSE, message = FALSE, warning = FALSE}
+```{r, echo = FALSE, warning = FALSE}
 ## Basic graph
 data |> 
   ggplot(aes(x = Dose, y = VO2, color = as.factor(natural))) +
   geom_point() +
   geom_smooth(method = "lm") + 
-  facet_wrap(.~Substrate)
+  facet_wrap(.~Substrate) +
+  labs(title = "VO2 Production vs. Dose",
+       caption = "Figure 1")
 
 ```
 
 ```{r, echo = FALSE, message = FALSE, warning = FALSE}
 ## Facet by pair
-for (i in unique(data$pair)){
+for (i in c(2,5)){
   p <- data |> 
     filter(pair == i) |> 
     ggplot(aes(x = Dose, y = VO2, color = as.factor(natural))) +
@@ -242,7 +169,8 @@ for (i in unique(data$pair)){
     facet_wrap(.~Substrate) +
     scale_color_manual(values = c("red","blue"),labels = c("0" = "Natural","1" = "Transgenic")) +
     labs(title = paste0("VO2 vs. Dose for pair ",i),
-         color = "Genotype")
+         color = "Genotype",
+         caption = paste0("Pair",i))
   print(p)
 }
 ```
@@ -275,6 +203,78 @@ kable(
 ```
 
 ### Modeling
+
+```{r, echo = FALSE}
+rbind(Measure = c("Value"),
+      LogLik = c(-2489.7),
+      ICC = c(0.644),
+      Conditional_R2 = c(0.965),
+      Marginal_R2 = c(0.901)) |> 
+  kable(caption = "Model performance metrics")
+```
+
+### Results
+
+```{r, echo = FALSE}
+overall_effect <- summary(lm(VO2 ~ natural + Dose*Substrate, data = data))$coefficients
+rbind(Measure = c("Value"),
+      MeanDifference = c(1192.2),
+      TValue = c(12.177),
+      PValue = c(0)) |> 
+  kable(caption = "Overall effect of genotype")
+```
+
+
+```{r, echo = FALSE}
+p_values <- summary(lmm1)$coefficients[,"Pr(>|t|)"]
+
+p_values_bonf <- p.adjust(p_values, method = "holm")
+
+data.frame(
+  Term = rownames(summary(lmm1)$coefficients),
+  P_value = p_values
+) |> 
+  kable(caption = "Table 3")
+```
+
+```{r,echo=FALSE,message=FALSE,warning=FALSE}
+preds <- predict(lmm1, data, allow.new.levels = TRUE)
+graph_data <- data |>
+  mutate(predictions = preds) |>
+  tidyr::pivot_longer(cols = c(predictions, VO2),
+                      names_to = "measure",
+                      values_to = "value") |>
+  dplyr::group_by(Substrate, measure, Dose,natural) |>
+  dplyr::summarize(mean_value = mean(value, na.rm = TRUE),
+                   standard_error = sd(value, na.rm = TRUE),
+                   .groups = "drop")
+graph_data |> 
+  ggplot(aes(x = Dose, y = mean_value, color = measure,shape = natural)) +
+  geom_point(size = 2, alpha = 0.85) +
+  geom_errorbar(data = filter(graph_data, measure == "predictions"),aes(ymin = mean_value - standard_error,
+                    ymax = mean_value + standard_error),
+                width = 0.025, linewidth = 0.3, alpha = 0.6) +
+  facet_wrap(. ~ Substrate) +
+  labs(title = "Oxygen efficiency predictions by genotype",
+    x = "Dose",
+    y = "VO2",
+    color = "Data Type",
+    shape = "Genotype",
+    caption = "Figure 2"
+  ) +
+  scale_y_continuous(
+    breaks = seq(0, 16000, 2000)  
+  ) + 
+  theme_bw() + 
+  theme(
+    legend.position = "bottom",
+    strip.text = element_text(face = "bold"),
+    panel.grid.major = element_line(linewidth = 0.2),
+    panel.grid.minor = element_blank(),
+    axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1)
+  )
+```
+
 
 ```{r, echo = FALSE}
 data = NULL

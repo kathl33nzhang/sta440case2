@@ -53,11 +53,11 @@ The main motivation for our analysis is to quantitatively test hypotheses about 
 
 ## 2 Exploratory Data Analysis
 
-We explored patterns of $VO_2$ production across genotype, substrate, and dose to assess whether systematic differences exist.
+The data for the study were collected from skeletal muscle mitochondria isolated from non-transgenic (control) and transgenic mice. The independent variables used from the dataset were measured to assess whether systematic differences exist in $$VO_2$$ production, our response variable, is the treatment variable $genotype$ (whether the mouse is transgenic or not), $substrate\ type$ (the substrate provided to mitochondria), and $dose$ (estimated levels of free energy to ATP hydrolysis).
 
-Looking at figure 1 we can see that genotype has an effect on $VO_2$ production. Across nearly all substrates we can see the transgenic mice display higher $VO_2$ production than natural mice. For substrates of $PMOc$ and $PMPc$ we can see different slopes for $VO_2$ production vs Dose and as the doses become higher, the effects of genotype becomes more significant. This suggests a need for an interaction between dose and substrate. The effect is most pronounced when the doses are higher in $PMPc$ and $PMOc$, and for $OcM$ and $PcM$ we see a clear higher $VO_2$ production for all doses. We also can see that substrates involving Octanoyl Carnitine $Oc$ and Palmitoyl-Carnitine $Pc$ has a more pronounced separation between transgenic vs natural mouse.
+Looking at Figure 1, we can see that genotype affects $VO_2$ production. Across nearly all substrates, we can see that the transgenic mice display higher $VO_2$ production than natural mice. For substrates of $PMOc$ and $PMPc$, we can see different slopes for $VO_2$ production vs. dose, and as the doses become higher, the effects of the genotype become more significant. This suggests a need for an interaction between dose and substrate. The effect is most pronounced when the doses are higher in $PMPc$ and $PMOc$, and for $OcM$ and $PcM$ we see a clear higher $VO_2$ production for all doses. We can also see that substrates involving Octanoyl Carnitine $Oc$ and Palmitoyl-Carnitine $Pc$ has a more pronounced separation between transgenic vs natural mice.
 
-$OcM$ and $PcM$ show a relatively flat dose-response curves for both genotypes which suggests limited sensitivity to dose changes and $PMOc$ and $PMPc$ substrates highlight a stronger genotype effect as the transgenic mice has a more pronounced effect to dose. This points to an interaction between substrate and genotype where certain substrates amplify the genotype-specific differences in the $VO_2$ production efficiency.
+$OcM$ and $PcM$ show a relatively flat dose-response curve for both genotypes, which suggests limited sensitivity to dose changes and $PMOc$ and $PMPc$ substrates highlight a stronger genotype effect as the transgenic mice has a more pronounced effect to dose. This points to an interaction between substrate and genotype where certain substrates amplify the genotype-specific differences in the $VO_2$ production efficiency.
 
 #### Pair - Level Variation
 
@@ -65,11 +65,21 @@ The researchers' experimental design, which matched a transgenic mouse with a na
 
 Looking at Figure 2, we can see that there does in fact seem to be systematic differences on the pair level. For example, pair 5 exhibits a much larger gap between $VO_2$ production of transgenic and natural type mice for $OcM$ and $PcM$. Across every pair, we see enough variation between the genotype-$VO_2$ relationship to warrant consideration in our final modeling decisions.
 
+#### Substrate vs. Amino Acid Modeling
+
+In addition to visual exploration, we also compared two different ways of representing substrate effects in preliminary linear models.
+
+1.  **Amino Acid Model:** Breaks down substrates into their biochemical building blocks (glutamate, pyruvate, etc), assuming these act independently and additively
+2.  **Substrate Model:** Treats the substrate bundles (GM, OcM, etc) as its own categorical condition.
+
+From Table 1, we can see that the substrate model provided the better fit based on model comparison statistics (AIC = 7386.29, adj. $R^2$ = 0.755) compared to the amino acid model (AIC = 7439.92, adj. $R^2$ = 0.721), explaining the variation in $VO_2$ more effectively. However, the amino acid model is limited in that it assumes the effects of these fuels are additive and constant, which is unlikely biologically, given the complicated interactions of the mitochondria. The representation is still useful in understanding which fuel components may be driving observed differences.
+
 #### Conclusions
 
-1.  Genotype appears significantly correlated with $VO_2$ production: transgenic mice had higher $VO_2$ than nautral mice across most conditions
-2.  Substrate and dose seem to matter as well: We saw certain substrates had a larger effect in the $VO_2$ production as $PMOc$ and $PMPc$ tended to effect the transgenic mice more while $OcM$ and $PcM$ tended to have an equal effect on transgenic and natural mice. This relationship was highly dependent on dose.
-3.  Pairs: While researchers do not need to know the specific measurement predictions for each pair, we need to account for variation on the pair level in our model.
+1.  Genotype appears significantly correlated with $VO_2$ production: transgenic mice had higher $VO_2$ than natural mice across most conditions
+2.  Substrate and dose seem to matter as well: We saw certain substrates had a larger effect in the $VO_2$ production as $PMOc$ and $PMPc$ tended to affect the transgenic mice more while $OcM$ and $PcM$ tended to have an equal effect on transgenic and natural mice. This relationship was highly dependent on dose.
+3.  While researchers do not need to know the specific measurement predictions for each pair, we need to account for variation on the pair level in our model.
+4.  Treating substrates as bundled conditions seems to capture variation in $VO_2$ more effectively.
 
 ## 3 Modeling
 

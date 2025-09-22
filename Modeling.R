@@ -44,10 +44,12 @@ summary(lm(VO2 ~ Substrate - 1, data = data))
 ## Random effects model with pair as a random intercept
 lmm1 <- lmer(VO2 ~ natural * Dose * Substrate + (1 | pair), data = data)
 lmm2 <- lmer(VO2 ~ Dose * Substrate + (1 | pair), data = data)
+lmm3 <- lmer(VO2 ~ natural + Dose * Substrate + (1 | pair), data = data)
 summary(lmm1)
 anova(lmm1)
 anova(lmm1,lmm2)
 lrtest(lmm1,lmm2)
+lrtest(lmm1,lmm3)
 performance::r2(lmm1)
 performance::icc(lmm1)
 ## calculating the same thing from summary output

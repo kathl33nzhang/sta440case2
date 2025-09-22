@@ -75,25 +75,18 @@ Looking at Figure 2, we can see that there does in fact seem to be systematic di
 
 To account for all of the points noted above, we chose to fit a fully interactive linear model regressing genotype, dose, and substrate on $VO_2$. Furthermore, we included a random intercept for pair, allowing us to include this added variation in the model while retaining the ability to predict on an unobserved pair. 
 
-Comparing this model to two other models -- a model excluding genotype and a model excluding the random intercept -- we see that our chosen equation is the best fit for the data.
+From Table 1, we can see a log likelihood value of -2489.7 for our chosen model. Compared to a model excluding genotype, this likelihood is statistically significant as a more preferred model according to a chi-squared test. Furthermore, our models intraclass correlation (ICC), which is the ratio of pair variability to total variability. An ICC value of 0.644 is a strong piece of evidence in support of including a random intercept for pair, as it signifies that the variation across pairs is non-neglible.
+
+Finally, we see that the conditional $R^2$ value in Table 2 represents the variance explained by our model. By allowing each pair have its own intercept we explain about 96.5% of the total variability in our data, higher than the 90% explained marginally by the fixed effects.
+
 
 $$
-Model\ 1:\ VO_2 ~ natural * Dose * Substrate + (1|pair)
+Model\ 1:\ VO_2 = Genotype * Dose * Substrate + (1|pair) + \epsilon
 $$
 $$
-Model\ 2:\ VO_2 ~ natural * Dose * Substrate
-$$
-$$
-Model\ 3:\ VO_2 ~ Dose * Substrate + (1|pair)
+Model\ 2:\ VO_2 = Dose * Substrate + (1|pair) + \epsilon
 $$
 
-From Table 1, we can see a log likelihood value of -2489.7 for our chosen model, and lower values for model 2 and 3 (-2759.2 and -2724.9, respectively). This supports the conclusion that our chosen model captures the behavior of the data the best. 
-
-NEED TO FIX p-values? Looking at the chi squared and the p value which compare the model fit of model 2 vs 1 and model 3 vs 1 we can see that the p values are very small (close to 0). Since the p values are very small the improvement in model 1 is not by chance so in model 2 it shows the random intercept for pair is essential. The p value comparing model 3 and 1 is also very small (close to 0) which suggests that genotype is also significant. Since the p values are very small the worse fit of model 2 and 3 is statistically significant which indicates their ommitted terms are necessary.
-
-Furthermore, Table 2 shows our models intraclass correlation (ICC), which is the ratio of pair variability to total variability. An ICC value of 0.644 is a strong piece of evidence in support of including a random intercept for pair, as it signifies that the variation across pairs is non-neglible.
-
-The conditional $R^2$ value in Table 2 represents the variance explained by our model. By allowing each pair have its own intercept we explain about 96.5% of the total variability in our data, higher than the 90% explained marginally by the fixed effects.
 
 ## 4 Analysis
 

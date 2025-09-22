@@ -1,10 +1,12 @@
 ---
 title: "Exploration of Multiple Treatments on the Metabolic Efficiency of the Mitochondria"
-authors: "Dom Fenoglio, Brian Kim, Kathleen Zhang"
+author: "Dom Fenoglio, Brian Kim, Kathleen Zhang"
 format: pdf
 header-includes:
   - \usepackage{longtable}
   - \usepackage{pdflscape}
+  - \usepackage{titling}
+  - \setlength{\droptitle}{-3em}  
 ---
 
 ```{r,echo=FALSE,message=FALSE,include=FALSE,warning=FALSE}
@@ -41,7 +43,6 @@ data <- data |>
   filter(Dose < -13)
 lmm1 <- lmer(VO2 ~ natural * Dose * Substrate + (1 | pair), data = data)
 ```
-
 
 ## 1 Background
 
@@ -82,12 +83,11 @@ From Table 2, we can see a log likelihood value of -2489.7 for our chosen model.
 
 Finally, we see that the conditional $R^2$ value, which represents the variance explained by our model. By allowing each pair have its own intercept we explain about 96.5% of the total variability in our data, higher than the 90% explained marginally by only the fixed effects.
 
-
 $$
 VO_2 = Genotype * Dose * Substrate + (1|pair) + \epsilon
 $$
 
-
+To check the adequacy of our model, we plotted a quantile-quantile plot of the residuals (Figure X). As seen on the graph, the residuals fall closely along the 45 degree reference line with minor deviations at the tails, indicating the assumption of normally distributed errors is reasonably satisfied.
 
 ## 4 Results
 
@@ -97,14 +97,21 @@ To assess evidence of an overall difference between transgenic and natural type 
 
 #### Research question 2: How does our model explain the dependence of the relationship on Dose, Substrate, and Pair
 
+We fit the linear mixed-effects model shown above with $VO_2$ as the response variable. As seen in Figure *,* the model provides strong evidence of genetic association with mitochondrial efficiency across several substrate-dose combinations, where transgenic mice demonstrate a steeper increase in oxygen consumption as dose increases. For example, under the PMPc substrate, the estimated dose-response slope had a significant difference between genotypes- for every 0.1 unit increase in dose, $VO_2$ is predicted to increase by 926 units in transgenic mice compared to only 589 units in natural mice.
+
+However, these effects were not uniform across all conditions, and the model revealed that the genotype effect depends on both substrate and dose. When observing substrate PcM, we can see visible differences between natural and transgenic mice across all dose levels as the difference starts off and continues to be statistically significant, as seen by the error bars. The slopes of the dose-response are similar for both transgenic and non-transgenic mice, with the transgenic group consistently having a higher intercept, suggesting that genotype has a baseline effect on mitochondrial efficiency under PcM but is not strongly dependent on dose.
+
+However, for substrate PMPc, we can see the error bars between transgenic and non-transgenic mic overlapping more substantially at lower doses, but as the dose increases, the difference between mitochondrial efficiency for transgenic and natural mice becomes statistically significant, showing the effect of genotype is amplified with increasing dose for certain substrates. For OcM and PcM substrates, the slopes were relatively flatter, suggesting less sensitivity to dose changes compared to PMOc and PMPc dose-genotype interactions which became more sensitive at higher doses.
+
+Together, these results demonstrate that mitochondrial efficiency is shaped by the interactions between genotype, substrate, and dose, with the magnitude of the effect of genotype depending on the substrate provided and the energy demand.
 
 ## 5 Conclusion and Future Work
 
-Our analysis showed strong evidence that genotype significantly influences $VO_2$ production conditional on both substrate and dose. Across nearly all experimental conditions, transgenic mice displayed a higher $VO_2$ production relative to natural mice with some substrates amplifying this effect more than others. These findings show that transgenic geotype is associated with enhanced metabolic efficiency
+Our analysis showed strong evidence that genotype significantly influences $VO_2$ production conditional on both substrate and dose. Across nearly all experimental conditions, transgenic mice displayed a higher $VO_2$ production relative to natural mice, with some substrates amplifying this effect more than others. These findings show that the transgenic genotype is associated with enhanced metabolic efficiency
 
-However, one major limitation can be seen in Figure 4, the residual plot across dosage levels. We see some evidence of a nonlinear relationship between dose and $VO_2$ production conditional on substrate and genotype, something that was not accounted for in our model. We chose to live the relationship linear because it was our understanding that the researchers' had some biological motivation behind this claim. Since our analysis shows evidence arguing against this claim, further work should include interrogating these assumptions, especially among higher dosage levels. 
+However, one major limitation can be seen in Figure 4, the residual plot across dosage levels. We see some evidence of a nonlinear relationship between dose and $VO_2$ production conditional on substrate and genotype, something that was not accounted for in our model. We chose to live the relationship linear because it was our understanding that the researchers' had some biological motivation behind this claim. Since our analysis shows evidence arguing against this claim, further work should include interrogating these assumptions, especially among higher dosage levels.
 
-In addition, Future work should focus on exploring a broader range of substrates and leveraging larger samples to better account for variability across experimental pairs. These extensions would help clarify the extent to which the observed genotype effects generalize across different biological and experimental contexts.
+In addition, future work should focus on exploring a broader range of substrates and leveraging larger samples to better account for variability across experimental pairs. These extensions would help clarify the extent to which the observed genotype effects generalize across different biological and experimental contexts.
 
 ## 6 Appendix
 
@@ -224,7 +231,6 @@ rbind(Measure = c("Value"),
   kable(caption = "Overall effect of genotype")
 ```
 
-
 ```{r, echo = FALSE}
 p_values <- summary(lmm1)$coefficients[,"Pr(>|t|)"]
 
@@ -274,7 +280,6 @@ graph_data |>
     axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1)
   )
 ```
-
 
 ```{r, echo = FALSE}
 data = NULL

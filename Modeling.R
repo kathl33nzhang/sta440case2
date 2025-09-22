@@ -308,7 +308,7 @@ data_pred <- data |>
 
 preds <- predict(lmm1, data, allow.new.levels = TRUE)
 
-graph_data <- data_pred |>
+graph_data <- data |>
   mutate(predictions = preds) |>
   tidyr::pivot_longer(cols = c(predictions, VO2),
                       names_to = "measure",

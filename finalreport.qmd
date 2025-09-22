@@ -7,6 +7,42 @@ header-includes:
   - \usepackage{pdflscape}
 ---
 
+```{r,echo=FALSE,message=FALSE,include=FALSE,warning=FALSE}
+library(lmerTest)
+library(lme4)
+library(performance)
+library(lmtest)
+library(nlme)
+library(tidyverse)
+library(readxl)
+library(knitr)
+library(kableExtra)
+data = NULL
+for (i in excel_sheets("data.xls")){
+  this_df <- read_excel("data.xls",sheet = i,skip = 1) |> 
+    select(-Basal) |> 
+    pivot_longer(cols = -Subject, names_to = "Dose",values_to = "VO2") |> 
+    mutate(Substrate = i)
+  data <- rbind(data,this_df)
+}
+data <- data |> 
+  mutate(Dose = round(as.numeric(Dose), 2),
+         natural = if_else(str_detect(Subject,"NT"),"Natural","Transgenic"),
+         malate = if_else(str_detect(Substrate,"M"),1,0),
+         glutamate = if_else(str_detect(Substrate,"G"),1,0),
+         pyruvate = if_else(str_detect(Substrate,"P"),1,0),
+         palmytol = if_else(str_detect(Substrate,"Pc"),1,0),
+         octanoyl = if_else(str_detect(Substrate,"Oc"),1,0),
+         pair = substr(Subject,3,3))
+
+## Should we filter out the 12.95 measure? it isn't basal but fit is much better without it
+## May also need to log transform outcome variable,
+data <- data |> 
+  filter(Dose < -13)
+lmm1 <- lmer(VO2 ~ natural * Dose * Substrate + (1 | pair), data = data)
+```
+
+
 ## 1 Background
 
 The mitochondria are considered the "powerhouse" of the cell, responsible for generating the cell's usable energy through oxidative phosphorylation, a process necessary for all biological processes, particularly in high-demand organs such as the heart, brain, and muscles. Their proper function is critical for overall health, as disruptions to their function are associated with various health issues, such as cancer, heart disease, and Alzheimer's.
@@ -62,6 +98,44 @@ The conditional $R^2$ value in Table 2 represents the variance explained by our 
 ## 4 Analysis
 
 TODO: bonferroni correction for p-values, include/analyze graph and give interpretation examples (see presentation).
+
+```{r,echo=FALSE,message=FALSE,warning=FALSE}
+preds <- predict(lmm1, data, allow.new.levels = TRUE)
+graph_data <- data |>
+  mutate(predictions = preds) |>
+  tidyr::pivot_longer(cols = c(predictions, VO2),
+                      names_to = "measure",
+                      values_to = "value") |>
+  dplyr::group_by(Substrate, measure, Dose,natural) |>
+  dplyr::summarize(mean_value = mean(value, na.rm = TRUE),
+                   standard_error = sd(value, na.rm = TRUE),
+                   .groups = "drop")
+graph_data |> 
+  ggplot(aes(x = Dose, y = mean_value, color = measure,shape = natural)) +
+  geom_point(size = 2, alpha = 0.85) +
+  geom_errorbar(data = filter(graph_data, measure == "predictions"),aes(ymin = mean_value - standard_error,
+                    ymax = mean_value + standard_error),
+                width = 0.025, linewidth = 0.3, alpha = 0.6) +
+  facet_wrap(. ~ Substrate) +
+  labs(title = "Oxygen efficiency predictions by genotype",
+    x = "Dose",
+    y = "VO2",
+    color = "Data Type",
+    shape = "Genotype"
+  ) +
+  scale_y_continuous(
+    breaks = seq(0, 16000, 2000)  
+  ) + 
+  theme_bw() + 
+  theme(
+    legend.position = "bottom",
+    strip.text = element_text(face = "bold"),
+    panel.grid.major = element_line(linewidth = 0.2),
+    panel.grid.minor = element_blank(),
+    axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1)
+  )
+```
+
 
 ## 5 Conclusion and Future Work
 

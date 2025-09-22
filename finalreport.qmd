@@ -42,7 +42,6 @@ data <- data |>
 lmm1 <- lmer(VO2 ~ natural * Dose * Substrate + (1 | pair), data = data)
 ```
 
-
 ## 1 Background
 
 The mitochondria are considered the "powerhouse" of the cell, responsible for generating the cell's usable energy through oxidative phosphorylation, a process necessary for all biological processes, particularly in high-demand organs such as the heart, brain, and muscles. Their proper function is critical for overall health, as disruptions to their function are associated with various health issues, such as cancer, heart disease, and Alzheimer's.
@@ -73,20 +72,17 @@ Looking at Figure 2, we can see that there does in fact seem to be systematic di
 
 ## 3 Modeling
 
-To account for all of the points noted above, we chose to fit a fully interactive linear model regressing genotype, dose, and substrate on $VO_2$. Furthermore, we included a random intercept for pair, allowing us to include this added variation in the model while retaining the ability to predict on an unobserved pair. 
+To account for all of the points noted above, we chose to fit a fully interactive linear model regressing genotype, dose, and substrate on $VO_2$. Furthermore, we included a random intercept for pair, allowing us to include this added variation in the model while retaining the ability to predict on an unobserved pair.
 
 From Table 1, we can see a log likelihood value of -2489.7 for our chosen model. Compared to a model excluding genotype, this likelihood is statistically significant as a more preferred model according to a chi-squared test. Furthermore, our models intraclass correlation (ICC), which is the ratio of pair variability to total variability. An ICC value of 0.644 is a strong piece of evidence in support of including a random intercept for pair, as it signifies that the variation across pairs is non-neglible.
 
 Finally, we see that the conditional $R^2$ value in Table 2 represents the variance explained by our model. By allowing each pair have its own intercept we explain about 96.5% of the total variability in our data, higher than the 90% explained marginally by the fixed effects.
 
-
 $$
 Model\ 1:\ VO_2 = Genotype * Dose * Substrate + (1|pair) + \epsilon
-$$
-$$
+$$ $$
 Model\ 2:\ VO_2 = Dose * Substrate + (1|pair) + \epsilon
 $$
-
 
 ## 4 Analysis
 
@@ -129,12 +125,11 @@ graph_data |>
   )
 ```
 
-
 ## 5 Conclusion and Future Work
 
 Our analysis showed strong evidence that genotype significantly influences $VO_2$ production conditional on both substrate and dose. Across nearly all experimental conditions, transgenic mice displayed a higher $VO_2$ production relative to natural mice with some substrates amplifying this effect more than others. These findings show that transgenic geotype is associated with enhanced metabolic efficiency
 
-However, one major limitation can be seen in Figure 4, the residual plot across dosage levels. We see some evidence of a nonlinear relationship between dose and $VO_2$ production conditional on substrate and genotype, something that was not accounted for in our model. We chose to live the relationship linear because it was our understanding that the researchers' had some biological motivation behind this claim. Since our analysis shows evidence arguing against this claim, further work should include interrogating these assumptions, especially among higher dosage levels. 
+However, one major limitation can be seen in Figure 4, the residual plot across dosage levels. We see some evidence of a nonlinear relationship between dose and $VO_2$ production conditional on substrate and genotype, something that was not accounted for in our model. We chose to live the relationship linear because it was our understanding that the researchers' had some biological motivation behind this claim. Since our analysis shows evidence arguing against this claim, further work should include interrogating these assumptions, especially among higher dosage levels.
 
 In addition, Future work should focus on exploring a broader range of substrates and leveraging larger samples to better account for variability across experimental pairs. These extensions would help clarify the extent to which the observed genotype effects generalize across different biological and experimental contexts.
 
@@ -178,7 +173,7 @@ data <- data |>
 
 ```
 
-```{r, echo = FALSE, message = FALSE, warning = FALSE}
+```{r, echo = FALSE, message = FALSE, warning = FALSE, include = FALSE}
 ## Basic graph
 data |> 
   ggplot(aes(x = Dose, y = VO2, color = as.factor(natural))) +
@@ -188,7 +183,7 @@ data |>
 
 ```
 
-```{r, echo = FALSE, message = FALSE, warning = FALSE}
+```{r, echo = FALSE, message = FALSE, warning = FALSE, include = FALSE}
 ## Facet by pair
 for (i in unique(data$pair)){
   p <- data |> 
@@ -259,7 +254,7 @@ data <- data |>
 
 ```
 
-```{r, echo = FALSE}
+```{r, echo = FALSE, include = FALSE}
 ## Different parameterizations but same model
 ## Not important for final presentation but cool for referenceß
 a <- model.matrix(VO2 ~ Substrate : natural + Dose  : natural : Substrate, data = data)
@@ -290,11 +285,13 @@ lrtest(lmm1,lm_compare)
 
 ```
 
-```{r, echo = FALSE}
+```{r, echo = FALSE, }
 ## Looking at residuals vs. theoretical quantiles for LMM model
 par(mfrow=c(1,2),las=1)
 qqnorm(residuals(lmm1),main="Residuals")
-qqnorm(unlist(ranef(lmm1)$pair),main="Random Effects")
+```
+
+```{r, echo = FALSE, include = FALSE}
 
 #cleaned up graph 
 data |> 
@@ -317,7 +314,7 @@ data |>
 
 ```
 
-```{r, echo = FALSE}
+```{r, echo = FALSE, include = FALSE}
 ## This one looks bad without dropping 12.95 observations
 
 #cleaned up graph 
@@ -341,7 +338,7 @@ data |>
 
 ```
 
-```{r, echo = FALSE}
+```{r, echo = FALSE, include = FALSE}
 
 #cleaned up graph 
 
@@ -365,7 +362,7 @@ data |>
 
 ```
 
-```{r, echo = FALSE}
+```{r, echo = FALSE, include = FALSE}
 #cleaned up graph 
 
 data |> 
@@ -388,7 +385,7 @@ data |>
 
 ```
 
-```{r, echo = FALSE}
+```{r, echo = FALSE, include = FALSE}
 ## Fitting model to data
 ## TODO: fix key, common scales on y-axis
 for (i in unique(data$pair)) {

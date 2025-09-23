@@ -1,5 +1,5 @@
 ---
-title: "Exploration of Multiple Treatments on the Metabolic Efficiency of the Mitochondria"
+title: "Exploration of Genotype on the Metabolic Efficiency of the Mitochondria"
 author: "Dom Fenoglio, Brian Kim, Kathleen Zhang"
 format: pdf
 header-includes:
@@ -46,7 +46,7 @@ lmm1 <- lmer(VO2 ~ natural * Dose * Substrate + (1 | pair), data = data)
 
 ## 1 Background
 
-The mitochondria are considered the "powerhouse" of the cell, responsible for generating the cell's usable energy through oxidative phosphorylation, a process necessary for all biological processes, particularly in high-demand organs such as the heart, brain, and muscles. Their proper function is critical for overall health, as disruptions to their function are associated with various health issues, such as cancer, heart disease, and Alzheimer's.
+The mitochondria are considered the "powerhouse" of the cell, responsible for generating the cell's usable energy. Their proper function is critical for overall health, as disruptions to their function are associated with various health issues, such as cancer, heart disease, and Alzheimer's.
 
 One way to examine mitochondrial function is by using the multiplexed assay platform, a laboratory method that allows researchers to measure multiple dimensions of mitochondrial activity across different substrates and energy demand conditions. By measuring respiration rates under different combinations of substrates across different experimental settings, such as genetic background and dose, researchers hope to better understand these effects on the metabolic and functional phenotypes of mitochondria.
 
@@ -54,17 +54,17 @@ The main motivation for our analysis is to quantitatively test hypotheses about 
 
 ## 2 Exploratory Data Analysis
 
-The data for the study were collected from skeletal muscle mitochondria isolated from non-transgenic (control) and transgenic mice. The independent variables used from the dataset were measured to assess whether systematic differences exist in $VO_2$ production, our response variable, is the treatment variable $genotype$ (whether the mouse is transgenic or not), $substrate\ type$ (the substrate provided to mitochondria), and $dose$ (estimated levels of free energy to ATP hydrolysis).
+The data for the study were collected from skeletal muscle mitochondria isolated from non-transgenic (natural type) and transgenic mice. The independent variables used from the dataset were measured to assess whether systematic differences exist in $VO_2$ production are the treatment variable $genotype$ (whether the mouse is transgenic or not), $substrate\ type$ (the substrate provided to mitochondria), and $dose$ (estimated levels of free energy to ATP hydrolysis).
 
-Looking at Figure 1, we can see that genotype affects $VO_2$ production. Across nearly all substrates, we can see that the transgenic mice display higher $VO_2$ production than natural mice. For substrates of $PMOc$ and $PMPc$, we can see different slopes for $VO_2$ production vs. dose, and as the doses become higher, the effects of the genotype become more significant. This suggests a need for an interaction between dose and substrate. The effect is most pronounced when the doses are higher in $PMPc$ and $PMOc$, and for $OcM$ and $PcM$ we see a clear higher $VO_2$ production for all doses. We can also see that substrates involving Octanoyl Carnitine $Oc$ and Palmitoyl-Carnitine $Pc$ has a more pronounced separation between transgenic vs natural mice.
+Looking at Figure *1*, we can see that genotype appears to affect $VO_2$ production. Across nearly all substrates, we can see that the transgenic mice display higher $VO_2$ production than natural mice. For substrates of $PMOc$ and $PMPc$, we can see different slopes for $VO_2$ production vs. dose, and as the doses become higher, the effects of the genotype become more significant. This suggests a need for an interaction between dose and substrate. The effect is most pronounced when the doses are higher in $PMPc$ and $PMOc$, and for $OcM$ and $PcM$ we see a clear higher $VO_2$ production for all doses. We can also see that substrates involving Octanoyl Carnitine ($Oc$) and Palmitoyl-Carnitine ($Pc$) have a more pronounced separation between transgenic vs natural mice.
 
-$OcM$ and $PcM$ show a relatively flat dose-response curve for both genotypes, which suggests limited sensitivity to dose changes and $PMOc$ and $PMPc$ substrates highlight a stronger genotype effect as the transgenic mice has a more pronounced effect to dose. This points to an interaction between substrate and genotype where certain substrates amplify the genotype-specific differences in the $VO_2$ production efficiency.
+$OcM$ and $PcM$ show a relatively flat dose-response curve for both genotypes, which suggests limited sensitivity to dose changes but the $PMOc$ and $PMPc$ substrates highlight a stronger genotype effect as the transgenic mice has a more pronounced effect to dose. This points to an interaction between substrate and genotype where certain substrates amplify the genotype-specific differences in the $VO_2$ production efficiency.
 
 #### Pair - Level Variation
 
 The researchers' experimental design, which matched a transgenic mouse with a natural type mouse and tested each pair on a different day, could induce some added variation that dose and substrate cannot account for. This is because the experimental setup could vary slightly day-to-day, influencing the measurement of our response variable $VO_2$.
 
-Looking at Figures 2 and 3, we can see that there does in fact seem to be systematic differences on the pair level. Pair 5 exhibits a much larger gap between $VO_2$ production of transgenic and natural type mice for $OcM$ and $PcM$ compared to pair 2. We saw enough variation across every pair to warrant consideration in our final modeling decisions.
+Looking at Figures *2* and *3*, we can see that there does in fact seem to be systematic differences on the pair level. Pair 5 exhibits a much larger gap between $VO_2$ production of transgenic and natural type mice for $OcM$ and $PcM$ compared to pair 2. We saw enough variation across every pair to warrant consideration in our final modeling decisions.
 
 #### Substrate vs. Amino Acid Modeling
 
@@ -73,13 +73,13 @@ In addition to visual exploration, we also compared two different ways of repres
 1.  **Amino Acid Model:** Breaks down substrates into their biochemical building blocks (glutamate, pyruvate, etc), assuming these act independently and additively
 2.  **Substrate Model:** Treats the substrate bundles (GM, OcM, etc) as its own categorical condition.
 
-From Table 1, we can see that the substrate model provided the better fit based on model comparison statistics (AIC = 7386.29, adj. $R^2$ = 0.755) compared to the amino acid model (AIC = 7439.92, adj. $R^2$ = 0.721), explaining the variation in $VO_2$ more effectively. However, the amino acid model is limited in that it assumes the effects of these fuels are additive and constant, which is unlikely biologically, given the complicated interactions of the mitochondria. The representation is still useful in understanding which fuel components may be driving observed differences.
+From Table *1*, we can see that the substrate model provided the better fit based on model comparison statistics when comparing two basic additive models (AIC = 7386.29, adj. $R^2$ = 0.755) compared to the amino acid model (AIC = 7439.92, adj. $R^2$ = 0.721), explaining the variation in $VO_2$ more effectively. The amino acid model is limited in that it assumes the effects of these fuels are additive and constant, which is unlikely biologically. The representation is still useful in understanding which fuel components may be driving observed differences.
 
 ## 3 Modeling
 
 To account for all of the points noted above, we chose to fit a fully interactive linear model regressing genotype, dose, and substrate on $VO_2$. Furthermore, we included a random intercept for pair, allowing us to include this added variation in the model while retaining the ability to predict on an unobserved pair. Finally, we treated dose as a numerical value because the researchers' assumption of linearity between dose and VO2.
 
-From Table 2, we can see a log likelihood value of -2489.7 for our chosen model. Compared to a model excluding genotype, this likelihood is statistically significant as a more preferred model according to a chi-squared test. Furthermore, our models intraclass correlation (ICC), which is the ratio of pair variability to total variability. An ICC value of 0.644 is a strong piece of evidence in support of including a random intercept for pair, as it signifies that the variation across pairs is non-neglible.
+From Table *2*, we can see a log likelihood value of -2489.7 for our chosen model. Compared to a model excluding genotype, this likelihood is statistically significant as a more preferred model according to a chi-squared test. Furthermore, our models intraclass correlation (ICC), which is the ratio of pair variability to total variability, is high. An ICC value of 0.644 is a strong piece of evidence in support of including a random intercept for pair, as it signifies that the variation across pairs is non-neglible.
 
 Finally, we see that the conditional $R^2$ value, which represents the variance explained by our model. By allowing each pair have its own intercept we explain about 96.5% of the total variability in our data, higher than the 90% explained marginally by only the fixed effects.
 
@@ -87,21 +87,19 @@ $$
 VO_2 = Genotype * Dose * Substrate + (1|pair) + \epsilon
 $$
 
-To check the adequacy of our model, we plotted a quantile-quantile plot of the residuals (Figure X). As seen on the graph, the residuals fall closely along the 45 degree reference line with minor deviations at the tails, indicating the assumption of normally distributed errors is reasonably satisfied.
+To check the adequacy of our model, we plotted a quantile-quantile plot of the residuals (Figure *4*). As seen on the graph, the residuals fall closely along the 45 degree reference line with minor deviations at the tails, indicating the assumption of normally distributed errors is reasonably satisfied.
 
 ## 4 Results
 
 #### Research question 1: Is there a genetic difference?
 
-To assess evidence of an overall difference between transgenic and natural type mice, we conducted a t-test between the groups, accounting for the known relationships between substrates and dose we saw in our EDA. Table 2 shows the difference in means between transgenic and natural type mice, as well as a t-statistic and p-value. We see that transgenic mice, on average, have a VO2 production 1192.72 units higher than natural type mice, controlling for dose and substrate. So, we can reject the null hypothesis that there is no difference between the two groups.
+To assess evidence of an overall difference between transgenic and natural type mice, we conducted a t-test between the groups, accounting for the known relationships between substrates and dose we saw in our EDA. Table *2* shows the difference in means between transgenic and natural type mice, as well as a t-statistic and p-value. We see that transgenic mice, on average, have a VO2 production 1192.72 units higher than natural type mice, controlling for dose and substrate. So, we can reject the null hypothesis that there is no difference between the two groups.
 
 #### Research question 2: How does our model explain the dependence of the relationship on Dose, Substrate, and Pair
 
-We fit the linear mixed-effects model shown above with $VO_2$ as the response variable. As seen in Figure *,* the model provides strong evidence of genetic association with mitochondrial efficiency across several substrate-dose combinations, where transgenic mice demonstrate a steeper increase in oxygen consumption as dose increases. For example, under the PMPc substrate, the estimated dose-response slope had a significant difference between genotypes- for every 0.1 unit increase in dose, $VO_2$ is predicted to increase by 926 units in transgenic mice compared to only 589 units in natural mice.
+As seen in Figure *5* our fitted model provides strong evidence of genetic association with mitochondrial efficiency across several substrate-dose combinations, where transgenic mice demonstrate a steeper increase in oxygen consumption as dose increases. For example, under the PMPc substrate, the estimated dose-response slope had a significant difference between genotypes- for every 0.1 unit increase in dose, $VO_2$ is predicted to increase by 926 units in transgenic mice compared to only 589 units in natural mice.
 
-However, these effects were not uniform across all conditions, and the model revealed that the genotype effect depends on both substrate and dose. When observing substrate PcM, we can see visible differences between natural and transgenic mice across all dose levels as the difference starts off and continues to be statistically significant, as seen by the error bars. The slopes of the dose-response are similar for both transgenic and non-transgenic mice, with the transgenic group consistently having a higher intercept, suggesting that genotype has a baseline effect on mitochondrial efficiency under PcM but is not strongly dependent on dose.
-
-However, for substrate PMPc, we can see the error bars between transgenic and non-transgenic mic overlapping more substantially at lower doses, but as the dose increases, the difference between mitochondrial efficiency for transgenic and natural mice becomes statistically significant, showing the effect of genotype is amplified with increasing dose for certain substrates. For OcM and PcM substrates, the slopes were relatively flatter, suggesting less sensitivity to dose changes compared to PMOc and PMPc dose-genotype interactions which became more sensitive at higher doses.
+However, these effects were not uniform across all conditions. When observing substrate PcM, we see very different predicted values for the lowest dose level (4580 for transgenic compared to 3063 for natural type) that are significantly different. The slopes of the dose-response are more similar than for PMPC similar, with an increase of 258 units in VO2 for transgenic mice compared to 185 for natural type. This suggests that genotype has a baseline effect on mitochondrial efficiency under PcM but is not as strongly dependent on dose.
 
 Together, these results demonstrate that mitochondrial efficiency is shaped by the interactions between genotype, substrate, and dose, with the magnitude of the effect of genotype depending on the substrate provided and the energy demand.
 
@@ -109,10 +107,10 @@ Together, these results demonstrate that mitochondrial efficiency is shaped by t
 
 Our analysis showed strong evidence that genotype significantly influences $VO_2$ production conditional on both substrate and dose. Across nearly all experimental conditions, transgenic mice displayed a higher $VO_2$ production relative to natural mice, with some substrates amplifying this effect more than others. These findings show that the transgenic genotype is associated with enhanced metabolic efficiency
 
-However, one major limitation can be seen in Figure 4, the residual plot across dosage levels. We see some evidence of a nonlinear relationship between dose and $VO_2$ production conditional on substrate and genotype, something that was not accounted for in our model. We chose to live the relationship linear because it was our understanding that the researchers' had some biological motivation behind this claim. Since our analysis shows evidence arguing against this claim, further work should include interrogating these assumptions, especially among higher dosage levels.
+However, one major limitation can be seen in Figure *6*, the residual plot across dosage levels. We see some evidence of a nonlinear relationship between dose and $VO_2$ production conditional on substrate and genotype, something that was not accounted for in our model. We chose to live the relationship linear because it was our understanding that the researchers' had some biological motivation behind this claim. Since our analysis shows evidence arguing against this claim, further work should include interrogating these assumptions, especially among higher dosage levels.
 
 In addition, future work should focus on exploring a broader range of substrates and leveraging larger samples to better account for variability across experimental pairs. These extensions would help clarify the extent to which the observed genotype effects generalize across different biological and experimental contexts.
-
+{{< pagebreak >}}
 ## 6 Appendix
 
 ### Exploratory Data Analysis
@@ -153,7 +151,7 @@ data <- data |>
 
 ```
 
-```{r, echo = FALSE, warning = FALSE}
+```{r, echo = FALSE, warning = FALSE,message=FALSE}
 ## Basic graph
 data |> 
   ggplot(aes(x = Dose, y = VO2, color = as.factor(natural))) +
@@ -167,6 +165,7 @@ data |>
 
 ```{r, echo = FALSE, message = FALSE, warning = FALSE}
 ## Facet by pair
+z = 2
 for (i in c(2,5)){
   p <- data |> 
     filter(pair == i) |> 
@@ -177,10 +176,12 @@ for (i in c(2,5)){
     scale_color_manual(values = c("red","blue"),labels = c("0" = "Natural","1" = "Transgenic")) +
     labs(title = paste0("VO2 vs. Dose for pair ",i),
          color = "Genotype",
-         caption = paste0("Pair",i))
+         caption = paste("Figure",z))
   print(p)
+  z = z+1
 }
 ```
+{{< pagebreak >}}
 
 ```{r, echo = FALSE, results = "hide", message = FALSE, warning = FALSE}
 ## Comparing substrate indicators vs. individual effects for each
@@ -220,6 +221,11 @@ rbind(Measure = c("Value"),
   kable(caption = "Model performance metrics")
 ```
 
+```{r, echo = FALSE}
+qqnorm(residuals(lmm1),main="Model QQ plot for residuals")
+mtext("Figure 5", side = 1, line = 4, cex = 0.8)
+```
+
 ### Results
 
 ```{r, echo = FALSE}
@@ -230,7 +236,7 @@ rbind(Measure = c("Value"),
       PValue = c(0)) |> 
   kable(caption = "Overall effect of genotype")
 ```
-
+{{< pagebreak >}}
 ```{r, echo = FALSE}
 p_values <- summary(lmm1)$coefficients[,"Pr(>|t|)"]
 
@@ -240,10 +246,10 @@ data.frame(
   Term = rownames(summary(lmm1)$coefficients),
   P_value = p_values
 ) |> 
-  kable(caption = "Table 3")
+  kable(caption = "Model coefficient estimates and P-values")
 ```
-
-```{r,echo=FALSE,message=FALSE,warning=FALSE}
+{{< pagebreak >}}
+```{r,echo=FALSE,message=FALSE,warning=FALSE,fig.width=7,fig.height=8}
 preds <- predict(lmm1, data, allow.new.levels = TRUE)
 graph_data <- data |>
   mutate(predictions = preds) |>
@@ -266,7 +272,7 @@ graph_data |>
     y = "VO2",
     color = "Data Type",
     shape = "Genotype",
-    caption = "Figure 2"
+    caption = "Figure 6"
   ) +
   scale_y_continuous(
     breaks = seq(0, 16000, 2000)  
@@ -281,7 +287,7 @@ graph_data |>
   )
 ```
 
-```{r, echo = FALSE}
+```{r, echo = FALSE,include=FALSE}
 data = NULL
 for (i in excel_sheets("data.xls")){
   this_df <- read_excel("data.xls",sheet = i,skip = 1) |> 
@@ -299,15 +305,11 @@ data <- data |>
          palmytol = if_else(str_detect(Substrate,"Pc"),1,0),
          octanoyl = if_else(str_detect(Substrate,"Oc"),1,0),
          pair = substr(Subject,3,3))
-
-## Should we filter out the 12.95 measure? it isn't basal but fit is much better without it
-## May also need to log transform outcome variable,
 data <- data |> 
   filter(Dose < -13)
-
 ```
 
-```{r, echo = FALSE}
+```{r, echo = FALSE,include=FALSE}
 ## Different parameterizations but same model
 ## Not important for final presentation but cool for referenceß
 a <- model.matrix(VO2 ~ Substrate : natural + Dose  : natural : Substrate, data = data)
@@ -338,7 +340,7 @@ lrtest(lmm1,lm_compare)
 
 ```
 
-```{r, echo = FALSE}
+```{r, echo = FALSE,include=FALSE}
 ## Looking at residuals vs. theoretical quantiles for LMM model
 par(mfrow=c(1,2),las=1)
 qqnorm(residuals(lmm1),main="Residuals")
@@ -378,7 +380,8 @@ data |>
   labs(
     title = "Residuals by Dose",
     x = "Dose",
-    y = "Model Residuals"
+    y = "Model Residuals",
+    caption = "Figure 7"
   ) +
   theme_minimal(base_size = 14) +
   theme(
@@ -389,7 +392,7 @@ data |>
 
 ```
 
-```{r, echo = FALSE}
+```{r, echo = FALSE,include=FALSE}
 
 #cleaned up graph 
 
@@ -413,7 +416,7 @@ data |>
 
 ```
 
-```{r, echo = FALSE}
+```{r, echo = FALSE,include=FALSE}
 #cleaned up graph 
 
 data |> 
@@ -436,7 +439,7 @@ data |>
 
 ```
 
-```{r, echo = FALSE}
+```{r, echo = FALSE,include=FALSE}
 ## Fitting model to data
 ## TODO: fix key, common scales on y-axis
 for (i in unique(data$pair)) {
@@ -524,7 +527,7 @@ for (i in unique(data$pair)) {
 }
 ```
 
-```{r, echo = FALSE}
+```{r, echo = FALSE,include=FALSE}
 # cleaning up graphs 
 
 data_pred <- data |> 
@@ -566,7 +569,7 @@ data_pred |>
 
 ```
 
-```{r, echo = FALSE}
+```{r, echo = FALSE,include=FALSE}
 # next one
 
 data_pred |>

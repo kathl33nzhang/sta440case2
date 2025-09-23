@@ -62,7 +62,8 @@ lrtest(lmm1,lm_compare)
 
 ## Looking at residuals vs. theoretical quantiles for LMM model
 par(mfrow=c(1,2),las=1)
-qqnorm(residuals(lmm1),main="Residuals")
+qqnorm(residuals(lmm1),main="Model QQ plot for residuals")
+mtext("Figure 2", side = 1, line = 4, cex = 0.8)
 qqnorm(unlist(ranef(lmm1)$pair),main="Random Effects")
 
 ## Looking at residuals for other predictors
